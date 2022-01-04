@@ -1,22 +1,79 @@
 ﻿using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Shell;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Management;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace OSum
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            MainMenu();
+            LoadingScreen();
+        }
+
+
+        public static void LoadingScreen()
+        {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            bool isRunning = true;
+
+            while (isRunning)
+            {
+                Console.CursorVisible = false;
+                string[] str = new string[] {"          WELCOME TO         ",
+                                         "0000000 000000 0     0 0       0 ",
+                                         "0     0 0      0     0 0 0   0 0 ",
+                                         "0     0 000000 0     0 0   0   0 ",
+                                         "0     0      0 0     0 0       0 ",
+                                         "0000000 000000 0000000 0       0 "};
+                int n = str.Length;
+
+                LoadingScreen[] ET = new LoadingScreen[n];
+                int x, y;
+                x = 15;
+                y = 8;
+                for (int i = 0; i < n; i++)
+                {
+                    ET[i] = new LoadingScreen(str[i], x, y + i);
+                }
+
+                while (true)
+                {
+                    while (true)
+                    {
+                        foreach (LoadingScreen et in ET)
+                        {
+                            if (et.X == 16 && et.cl1 == ConsoleColor.Yellow && et.iColor == 3 && et.index == 19 && et.k == 1 && et.l == 33 && et.nColor == 6 && et.x == 15 && et.y == 13)
+                            {
+                                Console.Clear();
+                                MainMenu();
+                                break;
+                            }
+                            else
+                            {
+                                et.ve();
+                            }
+                        }
+
+
+                    }
+                }
+            }
         }
 
         public static void MakeFolder(string directory)
@@ -730,7 +787,54 @@ namespace OSum
             softwarearray.Columns.Add("Program");
             softwarearray.Columns.Add("Location");
             string SoftwareKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            string SoftwareKey2 = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
 
+            using (RegistryKey rk = Registry.CurrentUser.OpenSubKey(SoftwareKey))
+            {
+
+                foreach (string skName in rk.GetSubKeyNames())
+                {
+                    using (RegistryKey sk = rk.OpenSubKey(skName))
+                    {
+                        try
+                        {
+                            if (!(sk.GetValue("DisplayName") == null))
+                            {
+                                if (sk.GetValue("InstallLocation") == null)
+                                {
+                                }
+                                else
+                                {
+                                    DataRow row = softwarearray.NewRow();
+                                    row["Program"] = sk.GetValue("DisplayName");
+                                    row["Location"] = sk.GetValue("InstallLocation");
+                                    softwarearray.Rows.Add(row);
+                                    if (row["Location"].ToString() == "")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        table.AddRow(Convert.ToString(sk.GetValue("DisplayName")), Convert.ToString(sk.GetValue("InstallLocation")));
+                                    }
+                                }
+
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+
+
+                        }
+                    }
+
+                }
+               
+
+
+            }
             using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(SoftwareKey))
             {
 
@@ -751,8 +855,15 @@ namespace OSum
                                     row["Program"] = sk.GetValue("DisplayName");
                                     row["Location"] = sk.GetValue("InstallLocation");
                                     softwarearray.Rows.Add(row);
-                                    table.AddRow(Convert.ToString(sk.GetValue("DisplayName")), Convert.ToString(sk.GetValue("InstallLocation")));
-
+                                    if (row["Location"].ToString() == "")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        i++;
+                                        table.AddRow(Convert.ToString(sk.GetValue("DisplayName")), Convert.ToString(sk.GetValue("InstallLocation")));
+                                    }
                                 }
 
                             }
@@ -767,30 +878,82 @@ namespace OSum
                     }
 
                 }
-                Console.WriteLine(table);
-                Console.WriteLine("Total Apps are: " + i);
-                Console.WriteLine("Enter Name to Start The Process");
-                var process = Console.ReadLine();
-                foreach (DataRow item in softwarearray.Rows)
-                {
-                    if (process != null)
-                    {
-                        string nameofprogram = item["Program"].ToString();
-                        if (process == nameofprogram)
-                        {
-                            found = true;
-                            Process.Start(item["Location"].ToString());
-                        }
 
-                    }
-                    else
+
+
+            }
+            using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(SoftwareKey2))
+            {
+
+                foreach (string skName in rk.GetSubKeyNames())
+                {
+                    using (RegistryKey sk = rk.OpenSubKey(skName))
                     {
-                        Console.Clear();
-                        ProcessManagementMenu();
+                        try
+                        {
+                            if (!(sk.GetValue("DisplayName") == null))
+                            {
+                                if (sk.GetValue("InstallLocation") == null)
+                                {
+                                }
+                                else
+                                {
+                                    DataRow row = softwarearray.NewRow();
+                                    row["Program"] = sk.GetValue("DisplayName");
+                                    row["Location"] = sk.GetValue("InstallLocation");
+                                    softwarearray.Rows.Add(row);
+                                    if (row["Location"].ToString() == "")
+                                    {
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        i++;
+                                        table.AddRow(Convert.ToString(sk.GetValue("DisplayName")), Convert.ToString(sk.GetValue("InstallLocation")));
+                                    }
+                                }
+
+                            }
+
+
+                        }
+                        catch (Exception ex)
+                        {
+
+
+                        }
                     }
+
                 }
 
 
+
+            }
+
+
+
+
+            Console.WriteLine(table);
+            Console.WriteLine("Total Apps are: " + i);
+            Console.WriteLine("Enter Name to Start The Process");
+            var process = Console.ReadLine();
+            foreach (DataRow item in softwarearray.Rows)
+            {
+                if (process != null)
+                {
+                    string nameofprogram = item["Program"].ToString();
+                    if (process == nameofprogram)
+                    {
+                        found = true;
+                        Process.Start(item["Location"].ToString());
+                    }
+
+                }
+                else
+                {
+                    Console.Clear();
+                    ProcessManagementMenu();
+                }
             }
             if (found == false)
             {
@@ -811,6 +974,8 @@ namespace OSum
         }                   //Program Listing
 
 
+
+  
         public static void EndProcess()
         {
 
@@ -868,6 +1033,8 @@ namespace OSum
 
 
         }           //Proess Killing
+
+
 
         public static void ProcessManagementMenu()
         {
@@ -948,6 +1115,11 @@ namespace OSum
                 ProcessManagementMenu();
             }
         }               // Main Menu
+
+
+
+
+        
 
 
     }
