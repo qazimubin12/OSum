@@ -1,19 +1,11 @@
-﻿using Microsoft.Win32;
-using Microsoft.WindowsAPICodePack.Shell;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Management;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Media;
+﻿using Microsoft.Win32;      //For using Registery Files
+using System;               //Basic C# Library Header
+using System.Collections.Generic;   // For Listing Process
+using System.Data;      //for Using DataTables
+using System.Diagnostics;       //For getting Processess
+using System.IO;            //For Input Output
+using System.Linq;             //Linq Framework
+
 
 namespace OSum
 {
@@ -28,8 +20,7 @@ namespace OSum
 
         public static void LoadingScreen()
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
+     
             bool isRunning = true;
 
             while (isRunning)
@@ -718,7 +709,7 @@ namespace OSum
         {
             Console.WriteLine("\t\t\t\t Welcome To OSum\n");
             Console.WriteLine("\t\tEnter Numbers for Respective Task\n");
-            Console.WriteLine("\t\t 1) File Search \n\t\t 2) Folder Create \n\t\t 3) Back\n\t\t");
+            Console.WriteLine("\t\t 1) File Search \n\t\t 2) File Management \n\t\t 3) Back\n\t\t");
             ConsoleKeyInfo mainmenukey = Console.ReadKey();
             if (mainmenukey.Key == ConsoleKey.NumPad1 || mainmenukey.Key == ConsoleKey.D1)
             {
@@ -973,9 +964,65 @@ namespace OSum
 
         }                   //Program Listing
 
+        public static void ONOFFMenu()
+        {
+            string filename = "", arguments = "", value = "";
+
+            var table = new Table();
+            table.SetHeaders("#", "Task");
+            table.AddRow("1", "Shut Down");
+            table.AddRow("2", "Restart");
+            table.AddRow("3", "Log Off");
+            table.AddRow("4", "Lock");
+            table.AddRow("5", "Hibernation");
+            table.AddRow("6", "Sleep");
+            Console.WriteLine(table);
+            Console.WriteLine("Enter Number for your task");
+            int choice = int.Parse(Console.ReadLine());
+             
+            if (choice == 1 || choice == 2 || choice == 3 || choice == 4 || choice == 5 || choice == 6)
+            {
+                switch (choice)
+                {
+                    case 1:
+                        filename = "shutdown.exe";
+                        arguments = "-s";
+                        break;
+                    case 2:
+                        filename = "shutdown.exe";
+                        arguments = "-r";
+                        break;
+                    case 3:
+                        filename = "shutdown.exe";
+                        arguments = "-l";
+                        break;
+                    case 4:
+                        filename = "Rundll32.exe";
+                        arguments = "User32.dll, LockWorkStation";
+                        break;
+                    case 5:
+                        filename = @"%windir%\system32\rundll32.exe";
+                        arguments = "PowrProf.dll, SetSuspendState";
+                        break;
+                    case 6:
+                        filename = "Rundll32.exe";
+                        arguments = "powrprof.dll, SetSuspendState 0,1,0";
+                        break;
+
+                }
+                ProcessStartInfo startinfo = new ProcessStartInfo(filename, arguments);
+                Process.Start(startinfo);
+            }
+            else
+            {
+                Console.WriteLine("Invalid Input");
+                MainMenu();
+
+            }
+        }
 
 
-  
+
         public static void EndProcess()
         {
 
@@ -994,7 +1041,7 @@ namespace OSum
 
 
             Console.WriteLine(table.ToString());
-            Console.WriteLine("Enter Name to Kill the Process || Leave of .exe");
+            Console.WriteLine("Enter ID to Kill the Process");
             var endID = int.Parse(Console.ReadLine());
             bool found = false;
             foreach (var process in processCollection)
@@ -1090,6 +1137,7 @@ namespace OSum
             table.AddRow("2", "File Management");
             table.AddRow("3", "Refresh Desktop");
             table.AddRow("4", "Shut Down/ Restart");
+            table.AddRow("5", "EXIT APPLICATION");
             Console.WriteLine(table.ToString());
             ConsoleKeyInfo mainmenukey = Console.ReadKey();
             if (mainmenukey.Key == ConsoleKey.NumPad2 || mainmenukey.Key == ConsoleKey.D2)
@@ -1106,13 +1154,26 @@ namespace OSum
 
             }
 
-
-
-
             if (mainmenukey.Key == ConsoleKey.NumPad1 || mainmenukey.Key == ConsoleKey.D1)
             {
                 Console.Clear();
                 ProcessManagementMenu();
+            }
+            if (mainmenukey.Key == ConsoleKey.NumPad4 || mainmenukey.Key == ConsoleKey.D4)
+            {
+                Console.Clear();
+                ONOFFMenu();
+            }
+            if (mainmenukey.Key == ConsoleKey.NumPad5 || mainmenukey.Key == ConsoleKey.D5)
+            {
+                Environment.Exit(0);
+            }
+            else
+            {
+                Console.WriteLine("Invalid Input Press Any Key to go to Back Menu");
+                Console.ReadKey();
+                Console.Clear();
+                MainMenu();
             }
         }               // Main Menu
 
